@@ -20,7 +20,7 @@ class CameraPoseDataset(Dataset):
         :return: an instance of the class
         """
         super(CameraPoseDataset, self).__init__()
-        self.img_paths, self.poses, self.scenes, self.scenes_ids = read_labels_file(labels_file, dataset_path)
+        self.img_paths, self.poses = read_labels_file(labels_file, dataset_path)
         self.dataset_size = self.poses.shape[0]
         self.predict_with_redisuals = False
         if position_num_classes is not None:
@@ -54,11 +54,8 @@ class CameraPoseDataset(Dataset):
         return self.dataset_size
 
     def __getitem__(self, idx):
-
-
         img = imread(self.img_paths[idx])
         pose = self.poses[idx]
-        scene = self.scenes_ids[idx]
         if self.transform:
             img = self.transform(img)
 
@@ -77,10 +74,6 @@ class CameraPoseDataset(Dataset):
 def read_labels_file(labels_file, dataset_path):
     df = pd.read_csv(labels_file)
     imgs_paths = [join(dataset_path, path) for path in df['img_path'].values]
-    scenes = df['scene'].values
-    scene_unique_names = np.unique(scenes)
-    scene_name_to_id = dict(zip(scene_unique_names, list(range(len(scene_unique_names)))))
-    scenes_ids = [scene_name_to_id[s] for s in scenes]
     n = df.shape[0]
     poses = np.zeros((n, 7))
     poses[:, 0] = df['t1'].values
@@ -90,4 +83,4 @@ def read_labels_file(labels_file, dataset_path):
     poses[:, 4] = df['q2'].values
     poses[:, 5] = df['q3'].values
     poses[:, 6] = df['q4'].values
-    return imgs_paths, poses, scenes, scenes_ids
+    return imgs_paths, poses
