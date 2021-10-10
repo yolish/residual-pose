@@ -20,14 +20,11 @@ class ResidualPoseNet(nn.Module):
         position_num_classes = config.get("position_num_classes")
         orientation_num_classes = config.get("orientation_num_classes")
 
-
         self.with_residuals = False
         if position_num_classes is not None:
             self.with_residuals = True
 
         latent_dim = config.get("latent_dim") # 1024
-
-        # Regressor layers
         self.fc_latent = nn.Linear(backbone_dim, latent_dim)
         self.position_reg = nn.Linear(latent_dim, 3)
         self.orientation_reg = nn.Linear(latent_dim, 4)
@@ -37,10 +34,6 @@ class ResidualPoseNet(nn.Module):
             self.position_cls_embed = nn.Linear(latent_dim, position_num_classes)
             self.orientation_cls_embed = nn.Linear(latent_dim, orientation_num_classes)
             self.log_softmax = nn.LogSoftmax(dim=1)
-            '''
-            self.position_centroid_encode = nn.Linear(3, latent_dim)
-            self.orientation_centroid_encode = nn.Linear(4, latent_dim)
-            '''
 
         self.dropout = nn.Dropout(p=config.get("dropout"))
         self.avg_pooling_2d = nn.AdaptiveAvgPool2d(1)
@@ -79,39 +72,11 @@ class ResidualPoseNet(nn.Module):
 
             orientation_latent = self.fc_latent_orientation(x)
             orientation_cls_log_distr = self.log_softmax(
-                self.position_cls_embed(orientation_latent))
+                self.orientation_cls_embed(orientation_latent))
             output["orientation_cls"] = orientation_cls_log_distr
             orientation_residuals = self.orientation_reg(orientation_latent)
             p_q = add_residuals(orientation_cls_log_distr, orientation_centroids,
                                 orientation_residuals, gt_indices=gt_orientation_cls)
-
-            '''
-            position_latent = self.fc_latent_position(x)
-            position_cls_log_distr = self.log_softmax(
-                self.position_cls_embed(x))
-            output["position_cls"] = position_cls_log_distr
-            position_centroids = select_centroids(position_cls_log_distr, position_centroids)
-            latent_position = position_latent + self.position_centroid_encode(position_centroids)
-            p_x = self.position_reg(latent_position)
-
-            orientation_latent = self.fc_latent_orientation(x)
-            orientation_cls_log_distr = self.log_softmax(
-                self.orientation_cls_embed(x))
-            output["orientation_cls"] = orientation_cls_log_distr
-            orientation_centroids = select_centroids(orientation_cls_log_distr, orientation_centroids)
-            latent_orientation = orientation_latent + self.orientation_centroid_encode(orientation_centroids)
-            p_q = self.orientation_reg(latent_orientation)
-            '''
-
-
-
-            #p_x = self.dropout(F.relu(self.fc_latent(out + self.position_centroid_encode(position_centroids))))
-            #p_q = self.dropout(F.relu(self.fc_latent(out + self.orientation_centroid_encode(orientation_centroids))))
-            #p_x = self.position_reg(p_x) # + position_centroids
-            #p_q = self.orientation_reg(p_q) # + orientation_centroids
-
-
-
         else:
             x = self.dropout(x)
             p_x = self.position_reg(x)
