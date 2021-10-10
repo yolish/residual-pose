@@ -1,0 +1,17 @@
+posenet
+train
+./backbones/efficient-net-b0.pth
+/home/yoli/datasets/CambridgeLandmarks/
+./datasets/CambridgeLandmarks/abs_cambridge_pose_sorted.csv_KingsCollege_train.csv
+
+python3 main.py posenet
+test
+/backbones/efficient-net-b0.pth
+/home/yoli/datasets/CambridgeLandmarks/
+./datasets/CambridgeLandmarks/abs_cambridge_pose_sorted.csv_KingsCollege_test.csv
+--checkpoint_path
+out/run_10_10_21_14_55_checkpoint-400.pth
+--position_kmeans
+/home/yoli/git/residual-pose/datasets/CambridgeLandmarks/abs_cambridge_pose_sorted.csv_KingsCollege_train.csv_position_4_classes.sav
+--orientation_kmeans
+/home/yoli/git/residual-pose/datasets/CambridgeLandmarks/abs_cambridge_pose_sorted.csv_KingsCollege_train.csv_orientation_4_classes.sav

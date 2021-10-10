@@ -1,0 +1,30 @@
+{
+	"general": {
+		"n_freq_print": 5,
+		"n_freq_checkpoint": 10,
+		"n_workers": 4,
+		"device_id": "cuda:1"
+	},
+	"posenet":
+	{
+		"batch_size": 8,
+		"position_num_classes": 4,
+		"orientation_num_classes": 4,
+		"learnable": true,
+		"s_x": -3.0,
+		"s_q": -6.5,
+		"lr": 1e-4,
+		"norm": 2,
+		"weight_decay": 1e-4,
+		"eps": 1e-10,
+		"latent_dim": 1024,
+		"backbone_dim": 1280,
+		"lr_scheduler_gamma": 0.1,
+		"lr_scheduler_step_size": 200,
+		"n_epochs": 600,
+		"dropout": 0.1
+	}
+
+	
+}
+
